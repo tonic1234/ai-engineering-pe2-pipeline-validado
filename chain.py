@@ -1,6 +1,6 @@
 """chain.py — Cadena LCEL con salida estructurada y resiliencia.
 
-APUNTE DE CLASE:
+Ojo con esto:
 La composición es literalmente esta:
 
     chain = (PROMPT | model.with_structured_output(EntidadesTecnicas)).with_retry(...)

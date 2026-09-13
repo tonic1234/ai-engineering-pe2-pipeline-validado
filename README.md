@@ -4,7 +4,7 @@ Pre-entrega 2 del curso **AI Engineering** (Coderhouse).
 Recibe un texto técnico (una descripción de arquitectura o el log de un error) y devuelve
 un objeto **validado** con las tecnologías mencionadas, el nivel de criticidad y un resumen.
 
-## Qué hay adentro
+## Estructura del repo
 
 | Archivo | Qué hace |
 |---|---|
@@ -24,7 +24,7 @@ cp .env.example .env               # completar la key del proveedor
 python main.py
 ```
 
-## Variables de entorno
+## Configuración
 
 | Variable | Descripción |
 |---|---|
@@ -67,7 +67,7 @@ Salida:
 - **Reutiliza el Módulo 1**: el modelo se elige por `LLM_PROVIDER`, así la cadena no cambia
   si se cambia de proveedor (`build_llm()` soporta los tres).
 
-## Tests
+## Pruebas
 
 ```bash
 pytest -q

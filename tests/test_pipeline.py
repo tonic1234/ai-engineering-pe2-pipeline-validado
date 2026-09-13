@@ -1,6 +1,6 @@
 """tests/test_pipeline.py — Pruebas del pipeline de extracción.
 
-APUNTE: acá me interesa probar lo que puedo verificar sin llamar al LLM:
+Detalle: acá me interesa probar lo que puedo verificar sin llamar al LLM:
   1. Que el esquema Pydantic rechace lo que tiene que rechazar y LIMPIE lo que debe
      limpiar (validación semántica + el field_validator propio).
   2. Que la cadena esté armada como pide la consigna y que soporte los tres proveedores.

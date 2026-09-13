@@ -1,5 +1,11 @@
+# entorno virtual
 .venv/
+venv/
+
+# python
 __pycache__/
 *.pyc
-.env
 .pytest_cache/
+
+# variables de entorno (nunca al repo)
+.env

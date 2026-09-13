@@ -1,6 +1,6 @@
 """schemas.py — Contrato de salida del pipeline de extracción.
 
-APUNTE DE CLASE:
+NOTA:
 La consigna pide tres campos: tecnologías, nivel de criticidad y resumen técnico.
 Lo importante no es solo "que estén", sino las RESTRICCIONES semánticas de negocio:
 que la lista de tecnologías no venga vacía (min_length=1) y que el resumen tenga un
