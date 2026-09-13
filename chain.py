@@ -19,15 +19,22 @@ Dos cosas que el profe marcó como errores típicos y traté de evitar:
 from __future__ import annotations
 
 import logging
+import os
 from functools import lru_cache
 
 from langchain_core.prompts import ChatPromptTemplate
-from langchain_openai import ChatOpenAI
 
 from schemas import ExtraccionTecnica
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
 logger = logging.getLogger(__name__)
+
+# Modelo por defecto de cada proveedor (reutilizo el criterio del Módulo 1).
+DEFAULT_MODELS = {
+    "openai": "gpt-4o-mini",
+    "anthropic": "claude-3-5-sonnet-20241022",
+    "gemini": "gemini-flash-latest",  # el que tiene free tier, sin tarjeta
+}
 
 SYSTEM_PROMPT = (
     "Sos un arquitecto de software senior. A partir de un texto técnico (una "
@@ -46,10 +53,38 @@ PROMPT = ChatPromptTemplate.from_messages(
 )
 
 
-def build_chain(model: str = "gpt-4o-mini", temperature: float = 0.0):
+def build_llm(provider: str | None = None, model: str | None = None, temperature: float = 0.0):
+    """Devuelve el modelo del proveedor elegido.
+
+    Reutilizo la idea del Módulo 1: se elige por variable de entorno, así cambiar de
+    proveedor no toca la cadena.
+    """
+
+    provider = (provider or os.getenv("LLM_PROVIDER", "gemini")).lower()
+    model = model or os.getenv("LLM_MODEL") or DEFAULT_MODELS.get(provider)
+
+    if provider == "openai":
+        from langchain_openai import ChatOpenAI
+
+        return ChatOpenAI(model=model, temperature=temperature)
+
+    if provider == "anthropic":
+        from langchain_anthropic import ChatAnthropic
+
+        return ChatAnthropic(model=model, temperature=temperature)
+
+    if provider == "gemini":
+        from langchain_google_genai import ChatGoogleGenerativeAI
+
+        return ChatGoogleGenerativeAI(model=model, temperature=temperature)
+
+    raise ValueError(f"Proveedor no soportado: {provider!r} (opciones: openai, anthropic, gemini)")
+
+
+def build_chain(model: str | None = None, temperature: float = 0.0):
     """Devuelve la cadena prompt | modelo-con-salida-estructurada-con-retry."""
 
-    llm = ChatOpenAI(model=model, temperature=temperature)  # 0 = determinista
+    llm = build_llm(model=model, temperature=temperature)  # 0 = determinista
 
     # El contrato: el modelo DEBE devolver algo que valide contra ExtraccionTecnica.
     structured = llm.with_structured_output(ExtraccionTecnica)

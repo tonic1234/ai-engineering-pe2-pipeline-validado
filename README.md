@@ -10,8 +10,8 @@ un objeto **validado** con las tecnologías mencionadas, el nivel de criticidad 
 |---|---|
 | `schemas.py` | `ExtraccionTecnica`: el contrato de salida (con restricciones de negocio). |
 | `chain.py` | Cadena LCEL: `prompt | llm.with_structured_output(...)` + `.with_retry(...)`. |
-| `main.py` | Script de prueba con un caso normal y un caso ambiguo. |
-| `tests/` | Pruebas del esquema y de la estructura de la cadena. |
+| `main.py` | Prueba con un caso normal y un caso ambiguo. |
+| `tests/` | Pruebas del esquema, de la estructura de la cadena y de los proveedores. |
 
 ## Cómo correrlo
 
@@ -20,7 +20,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
-cp .env.example .env               # completar OPENAI_API_KEY
+cp .env.example .env               # completar la key del proveedor
 python main.py
 ```
 
@@ -28,7 +28,11 @@ python main.py
 
 | Variable | Descripción |
 |---|---|
-| `OPENAI_API_KEY` | Requerida para que la cadena pueda llamar al modelo. |
+| `LLM_PROVIDER` | `openai`, `anthropic` o `gemini` (por defecto `gemini`). |
+| `GOOGLE_API_KEY` | Requerida si el proveedor es Gemini. |
+| `OPENAI_API_KEY` | Requerida si el proveedor es OpenAI. |
+
+> Gemini tiene free tier (sin tarjeta): <https://aistudio.google.com/apikey>
 
 ## Ejemplo de salida
 
@@ -60,6 +64,8 @@ Salida:
 - **Resiliencia**: `.with_retry(stop_after_attempt=3, wait_exponential_jitter=True)` reintenta
   errores transitorios (red, 429). No se reintentan errores permanentes.
 - **Async**: `process_text()` usa `.ainvoke()` y loguea el resultado de la validación.
+- **Reutiliza el Módulo 1**: el modelo se elige por `LLM_PROVIDER`, así la cadena no cambia
+  si se cambia de proveedor (`build_llm()` soporta los tres).
 
 ## Tests
 
@@ -67,5 +73,5 @@ Salida:
 pytest -q
 ```
 
-Verifican el esquema (validación semántica) y la estructura de la cadena, sin llamar al
-modelo.
+Verifican el esquema (validación semántica), la estructura de la cadena y que se puedan
+construir los tres proveedores, sin llamar al modelo.

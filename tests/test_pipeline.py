@@ -2,10 +2,7 @@
 
 APUNTE: acá me interesa probar dos cosas que puedo verificar sin llamar al LLM:
   1. Que el esquema Pydantic rechace lo que tiene que rechazar (validación semántica).
-  2. Que la cadena esté armada como pide la consigna (LCEL + structured output + retry).
-
-Para el punto 2 verifico la ESTRUCTURA de la cadena, no el texto que devuelve el
-modelo (eso cambiaría en cada corrida y haría un test frágil).
+  2. Que la cadena esté armada como pide la consigna y que soporte los tres proveedores.
 
 Correr:  pytest -q
 """
@@ -15,7 +12,7 @@ from __future__ import annotations
 import pytest
 from pydantic import ValidationError
 
-from chain import PROMPT, build_chain
+from chain import PROMPT, build_chain, build_llm
 from schemas import ExtraccionTecnica, NivelCriticidad
 
 
@@ -51,21 +48,27 @@ def test_resumen_demasiado_corto_falla():
 
 
 # --------------------------------------------------------------------------
-# Prompt / cadena
+# Prompt / cadena / proveedores
 # --------------------------------------------------------------------------
 def test_prompt_espera_la_variable_texto():
     assert "texto" in PROMPT.input_variables
 
 
 def test_prompt_no_hardcodea_el_texto():
-    # El system prompt no debe contener el texto de entrada: eso lo resuelve LangChain.
     system = PROMPT.messages[0].prompt.template
     assert "{texto}" not in system
 
 
-def test_la_cadena_se_construye(monkeypatch):
-    # build_chain() instancia ChatOpenAI; le damos una key dummy para que no falle
-    # por entorno. No se hace ninguna llamada de red.
-    monkeypatch.setenv("OPENAI_API_KEY", "test-key")
+def test_la_cadena_se_construye():
     cadena = build_chain()
     assert len(cadena.steps) == 2  # prompt | modelo-estructurado
+
+
+@pytest.mark.parametrize("provider", ["openai", "anthropic", "gemini"])
+def test_build_llm_soporta_los_tres_proveedores(provider):
+    assert build_llm(provider=provider) is not None
+
+
+def test_build_llm_rechaza_proveedor_desconocido():
+    with pytest.raises(ValueError):
+        build_llm(provider="perplexity")

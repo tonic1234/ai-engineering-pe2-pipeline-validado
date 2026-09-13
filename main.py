@@ -1,7 +1,10 @@
 """main.py — Mini-script async de prueba del pipeline.
 
+Prueba el caso normal y un caso ambiguo. El proveedor se elige con LLM_PROVIDER
+(por defecto gemini, que tiene free tier y no pide tarjeta).
+
 Uso:
-    cp .env.example .env   # completar OPENAI_API_KEY
+    cp .env.example .env   # completar la key del proveedor
     python main.py
 """
 
@@ -11,7 +14,7 @@ import asyncio
 
 from dotenv import load_dotenv
 
-from chain import process_text
+from chain import build_llm, process_text
 
 TEXTO_EJEMPLO = (
     "El servicio de pagos está construido con FastAPI, usa Redis como caché y "
@@ -24,6 +27,8 @@ TEXTO_AMBIGUO = "Hubo un problema en producción y tardó más de lo normal."
 
 async def main() -> None:
     load_dotenv()
+
+    print("Modelo:", build_llm().model)
 
     for etiqueta, texto in (("caso normal", TEXTO_EJEMPLO), ("caso ambiguo", TEXTO_AMBIGUO)):
         print(f"\n=== {etiqueta} ===")
