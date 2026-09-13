@@ -7,7 +7,7 @@ que la lista de tecnologías no venga vacía (min_length=1) y que el resumen ten
 mínimo de caracteres razonable. Esa es la validación semántica, la única de las tres
 (sintáctica / estructural / semántica) que no te regala el framework.
 
-Extra que agregué después de ver la pista de la clase: un field_validator propio para
+Extra que agregué al repasar el tema: un field_validator propio para
 limpiar la lista de tecnologías (sacar espacios, descartar vacíos y eliminar
 duplicados). Recordé que dict.fromkeys preserva el ORDEN y deduplica a la vez, que es
 justo lo que quería.
